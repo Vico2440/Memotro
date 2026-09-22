@@ -15,6 +15,7 @@
     height: 100px;
     perspective: 800px;
     cursor: pointer;
+    font-size: 48px;
 }
 
 .card-inner{
@@ -37,10 +38,16 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    border: 2px solid darkred;
+
     backface-visibility: hidden;
 }
 
+.card-front{
+    background-color: blueviolet;
+}
+
 .card-back{
+    background-color: white;
+    border: 1px solid black;
     transform: rotateY(180deg);
 }
