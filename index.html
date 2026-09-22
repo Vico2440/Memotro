@@ -3,14 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Memotro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
 </head>
 <body>
-    <button>
-        <div class="card">
-            <div class="card-front"></div>
+    <main id="board">
+        <div id="grid-container">
 
-            <div class="card-back">N</div>
         </div>
-    </button>
+    </main>
+    <template id="card-template">
+        <button class="card">
+            <div class="card-inner">
+                <div class="card-face card-front"></div>
+
+                <div class="card-face card-back">N</div>
+            </div>
+        </button>
+    </template>
+
 </body>
 </html>
