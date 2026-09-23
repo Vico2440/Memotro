@@ -7,20 +7,28 @@
     <script src="index.js" defer></script>
 </head>
 <body>
-    <main id="board">
-        <div id="grid-container">
-
+    <div id="main-container">
+        <div id="score-container">
+            <p id="score">0</p>
         </div>
-    </main>
-    <template id="card-template">
-        <button class="card">
-            <div class="card-inner">
-                <div class="card-face card-front"></div>
+        <main id="board">
+            <div id="grid-container">
 
-                <div class="card-face card-back"></div>
             </div>
-        </button>
-    </template>
+        </main>
+
+        <template id="card-template">
+            <button class="card">
+                <div class="card-inner">
+                    <div class="card-face card-front"></div>
+
+                    <div class="card-face card-back"></div>
+                </div>
+            </button>
+        </template>
+    </div>
+
+
 
 </body>
 </html>
