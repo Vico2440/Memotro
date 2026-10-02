@@ -1,13 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    padding: 24px;
-    box-sizing: border-box;
+    padding: 16px;
     font-family: 'Inter', sans-serif;
     background-color: #a364db;
     color: white;
@@ -17,12 +20,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    width: 100%;
 }
 
 #hud-container {
     display: flex;
-    gap: 40px;
+    gap: clamp(16px, 5vw, 32px);
 }
 
 .stat-box {
@@ -32,17 +36,26 @@ body {
 }
 
 .stat-label {
-    font-size: 13px;
+    font-size: clamp(11px, 2.5vw, 13px);
     font-weight: 600;
     letter-spacing: 1px;
     opacity: 0.8;
 }
 
-#score, #timer {
+#score, #timer, #streak {
     font-variant-numeric: tabular-nums;
-    font-size: 32px;
+    font-size: clamp(24px, 6vw, 32px);
     font-weight: 700;
+    display: inline-block;
+    transform-origin: center center;
+    will-change: transform;
 }
+
+#streak {
+    color: #ffd166;
+    transition: transform 0.2s ease;
+}
+
 
 #controls-container {
     display: flex;
@@ -75,20 +88,27 @@ body {
     cursor: not-allowed;
 }
 
+#board {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 #grid-container {
     display: grid;
-    grid-template-columns: repeat(4, 90px);
-    gap: 12px;
-    min-height: 396px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(8px, 2.5vw, 12px);
+    width: min(90vw, 380px);
+    aspect-ratio: 1 / 1;
 }
 
 .card {
     all: unset;
-    width: 90px;
-    height: 90px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     perspective: 800px;
     cursor: pointer;
-    font-size: 40px;
+    font-size: clamp(28px, 8vw, 42px);
 }
 
 .card-inner {
@@ -112,6 +132,7 @@ body {
     justify-content: center;
     border-radius: 8px;
     backface-visibility: hidden;
+    user-select: none;
 }
 
 .card-front {

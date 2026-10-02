@@ -2,6 +2,7 @@ const board = document.getElementById('grid-container');
 const template = document.getElementById('card-template');
 const scoreElement = document.querySelector('#score');
 const timerElement = document.querySelector('#timer');
+const streakElement = document.querySelector('#streak');
 const btnStart = document.getElementById('btn-start');
 const btnReset = document.getElementById('btn-reset');
 
@@ -14,10 +15,12 @@ const gameState = {
     matchedPair: 0,
     isLocked: false,
     score: 0,
+    streak: 0,
     timerInterval: null,
     startTime: null,
 };
 
+// Mélange Fisher-Yates
 function shuffle(array) {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -27,6 +30,7 @@ function shuffle(array) {
     return arr;
 }
 
+// Gestion du chronomètre
 function startTimer() {
     gameState.startTime = Date.now();
     gameState.timerInterval = setInterval(() => {
@@ -41,6 +45,19 @@ function stopTimer() {
     clearInterval(gameState.timerInterval);
 }
 
+// Mise à jour visuelle du streak
+function updateStreakDisplay(hasGained) {
+    streakElement.textContent = `x${Math.max(1, gameState.streak)}`;
+
+    // Animation de pop sur le texte du streak
+    const scale = hasGained ? 1.35 : 0.85;
+    streakElement.style.transform = `scale(${scale})`;
+    setTimeout(() => {
+        streakElement.style.transform = 'scale(1)';
+    }, 200);
+}
+
+// Création des cartes (face cachée par défaut)
 function createCard(value, id) {
     const clone = template.content.cloneNode(true);
     const button = clone.querySelector('.card');
@@ -78,23 +95,36 @@ function checkMatch() {
     const [c1, c2] = gameState.pair;
 
     if (c1.dataset.value === c2.dataset.value) {
+        // Paire trouvée : on fige les cartes
         c1.style.pointerEvents = 'none';
         c2.style.pointerEvents = 'none';
 
-        gameState.pair = [];
-        gameState.isLocked = false;
         gameState.matchedPair++;
-        gameState.score += 10;
+        gameState.streak++;
+        updateStreakDisplay(true);
+
+        // Calcul dynamique : 10 points * multiplicateur
+        const pointsWon = 10 * gameState.streak;
+        gameState.score += pointsWon;
         animateScoreJuicy(scoreElement, gameState.score);
 
+        gameState.pair = [];
+        gameState.isLocked = false;
+
+        // Victoire finale
         if (gameState.matchedPair === numberOfPair) {
             stopTimer();
             setTimeout(() => {
-                gameState.score += 100;
+                const bonusClear = 100 * Math.max(1, gameState.streak);
+                gameState.score += bonusClear;
                 animateScoreJuicy(scoreElement, gameState.score);
             }, 600);
         }
     } else {
+        // Erreur : on casse la série de victoires d'affilée
+        gameState.streak = 0;
+        updateStreakDisplay(false);
+
         setTimeout(() => {
             c1.classList.remove('is-flipped');
             c2.classList.remove('is-flipped');
@@ -104,8 +134,11 @@ function checkMatch() {
     }
 }
 
+// Boutons
 btnStart.addEventListener('click', () => {
     btnStart.disabled = true;
+    gameState.streak = 0;
+    updateStreakDisplay(false);
     renderBoard();
     startTimer();
 });
@@ -114,6 +147,7 @@ btnReset.addEventListener('click', () => {
     window.location.reload();
 });
 
+// Animation juicy du score
 function easeOutQuad(x) {
     return 1 - (1 - x) * (1 - x);
 }
@@ -121,12 +155,10 @@ function easeOutQuad(x) {
 function animateScoreJuicy(element, target, duration = 300) {
     const start = parseInt(element.textContent.replace(/\s/g, ''), 10) || 0;
     const startTime = performance.now();
-
     const diff = Math.max(0, target - start);
     const baseGain = 10;
 
     const intensity = Math.min(Math.log10(Math.max(diff, 1) / baseGain + 1) + 0.7, 3);
-
     const maxScaleBonus = 0.25 * intensity;
     const maxRotation = 6 * intensity;
     const direction = Math.random() > 0.5 ? 1 : -1;
@@ -140,7 +172,6 @@ function animateScoreJuicy(element, target, duration = 300) {
 
         const scale = 1 + Math.sin(progress * Math.PI) * maxScaleBonus;
         const rotation = Math.sin(progress * Math.PI * 2) * maxRotation * (1 - progress) * direction;
-
         element.style.transform = `scale(${scale}) rotate(${rotation}deg)`;
 
         if (progress < 1) {
