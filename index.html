@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Memotro</title>
@@ -7,28 +7,35 @@
     <script src="JS/script.js" defer></script>
 </head>
 <body>
-    <div id="main-container">
-        <div id="score-container">
-            <p id="score">0</p>
+<div id="main-container">
+    <header id="hud-container">
+        <div class="stat-box">
+            <span class="stat-label">SCORE</span>
+            <span id="score">0</span>
         </div>
-        <main id="board">
-            <div id="grid-container">
+        <div class="stat-box">
+            <span class="stat-label">TEMPS</span>
+            <span id="timer">00:00</span>
+        </div>
+    </header>
 
-            </div>
-        </main>
-
-        <template id="card-template">
-            <button class="card">
-                <div class="card-inner">
-                    <div class="card-face card-front"></div>
-
-                    <div class="card-face card-back"></div>
-                </div>
-            </button>
-        </template>
+    <div id="controls-container">
+        <button id="btn-start" class="btn">Start Game</button>
+        <button id="btn-reset" class="btn">Reset</button>
     </div>
 
+    <main id="board">
+        <div id="grid-container"></div>
+    </main>
 
-
+    <template id="card-template">
+        <button class="card">
+            <div class="card-inner">
+                <div class="card-face card-front"></div>
+                <div class="card-face card-back"></div>
+            </div>
+        </button>
+    </template>
+</div>
 </body>
 </html>

@@ -1,17 +1,21 @@
 const board = document.getElementById('grid-container');
 const template = document.getElementById('card-template');
 const scoreElement = document.querySelector('#score');
+const timerElement = document.querySelector('#timer');
+const btnStart = document.getElementById('btn-start');
+const btnReset = document.getElementById('btn-reset');
 
 const BASE_EMOJIS = ['🃏', '💎', '🔥', '🎲', '⚡', '🌙', '🚀', '🍄'];
 const deckValues = [...BASE_EMOJIS, ...BASE_EMOJIS];
-const numberOfPair = deckValues.length / 2; // 8 paires
+const numberOfPair = deckValues.length / 2;
 
 const gameState = {
     pair: [],
-    life: 3,
     matchedPair: 0,
     isLocked: false,
     score: 0,
+    timerInterval: null,
+    startTime: null,
 };
 
 function shuffle(array) {
@@ -23,9 +27,22 @@ function shuffle(array) {
     return arr;
 }
 
+function startTimer() {
+    gameState.startTime = Date.now();
+    gameState.timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        timerElement.textContent = `${mins}:${secs}`;
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(gameState.timerInterval);
+}
+
 function createCard(value, id) {
     const clone = template.content.cloneNode(true);
-
     const button = clone.querySelector('.card');
     const backFace = clone.querySelector('.card-back');
 
@@ -34,14 +51,21 @@ function createCard(value, id) {
     button.dataset.id = id;
 
     button.addEventListener('click', () => onCardClick(button));
-
     return clone;
+}
+
+function renderBoard() {
+    board.innerHTML = '';
+    const shuffled = shuffle(deckValues);
+    shuffled.forEach((val, idx) => {
+        board.appendChild(createCard(val, idx));
+    });
 }
 
 function onCardClick(cardElement) {
     if (gameState.isLocked || gameState.pair.includes(cardElement)) return;
 
-    flipCard(cardElement);
+    cardElement.classList.add('is-flipped');
     gameState.pair.push(cardElement);
 
     if (gameState.pair.length === 2) {
@@ -54,55 +78,41 @@ function checkMatch() {
     const [c1, c2] = gameState.pair;
 
     if (c1.dataset.value === c2.dataset.value) {
+        c1.style.pointerEvents = 'none';
+        c2.style.pointerEvents = 'none';
+
         gameState.pair = [];
         gameState.isLocked = false;
         gameState.matchedPair++;
         gameState.score += 10;
         animateScoreJuicy(scoreElement, gameState.score);
+
+        if (gameState.matchedPair === numberOfPair) {
+            stopTimer();
+            setTimeout(() => {
+                gameState.score += 100;
+                animateScoreJuicy(scoreElement, gameState.score);
+            }, 600);
+        }
     } else {
         setTimeout(() => {
-            unflipCard(c1);
-            unflipCard(c2);
+            c1.classList.remove('is-flipped');
+            c2.classList.remove('is-flipped');
             gameState.pair = [];
             gameState.isLocked = false;
-        }, 1000);
-    }
-
-    if (gameState.matchedPair === numberOfPair) {
-        setTimeout(() => {
-            gameState.score += 100;
-            animateScoreJuicy(scoreElement, gameState.score);
-            startNewRound();
-        }, 1000);
+        }, 900);
     }
 }
 
-function flipCard(cardElement) {
-    cardElement.classList.add('is-flipped');
-}
+btnStart.addEventListener('click', () => {
+    btnStart.disabled = true;
+    renderBoard();
+    startTimer();
+});
 
-function unflipCard(cardElement) {
-    cardElement.classList.remove('is-flipped');
-}
-
-function renderBoard(cards) {
-    board.innerHTML = '';
-    cards.forEach((val, index) => {
-        const cardElement = createCard(val, index);
-        board.appendChild(cardElement);
-    });
-}
-
-function startNewRound() {
-    gameState.pair = [];
-    gameState.isLocked = false;
-    gameState.matchedPair = 0;
-
-    const shuffledDeck = shuffle(deckValues);
-    renderBoard(shuffledDeck);
-}
-
-startNewRound();
+btnReset.addEventListener('click', () => {
+    window.location.reload();
+});
 
 function easeOutQuad(x) {
     return 1 - (1 - x) * (1 - x);
@@ -114,6 +124,7 @@ function animateScoreJuicy(element, target, duration = 300) {
 
     const diff = Math.max(0, target - start);
     const baseGain = 10;
+
     const intensity = Math.min(Math.log10(Math.max(diff, 1) / baseGain + 1) + 0.7, 3);
 
     const maxScaleBonus = 0.25 * intensity;
