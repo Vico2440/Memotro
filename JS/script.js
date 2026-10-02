@@ -1,12 +1,10 @@
-console.log('Happy developing ✨');
-
 const board = document.getElementById('grid-container');
 const template = document.getElementById('card-template');
-
-const deckValues = ['🃏', '🃏', '💎', '💎', '🔥', '🔥', '🎲', '🎲'].sort(() => Math.random() - 0.5);
-const numberOfPair = deckValues.length / 2;
-
 const scoreElement = document.querySelector('#score');
+
+const BASE_EMOJIS = ['🃏', '💎', '🔥', '🎲', '⚡', '🌙', '🚀', '🍄'];
+const deckValues = [...BASE_EMOJIS, ...BASE_EMOJIS];
+const numberOfPair = deckValues.length / 2; // 8 paires
 
 const gameState = {
     pair: [],
@@ -15,6 +13,15 @@ const gameState = {
     isLocked: false,
     score: 0,
 };
+
+function shuffle(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
 
 function createCard(value, id) {
     const clone = template.content.cloneNode(true);
@@ -49,9 +56,9 @@ function checkMatch() {
     if (c1.dataset.value === c2.dataset.value) {
         gameState.pair = [];
         gameState.isLocked = false;
-        gameState.matchedPair ++;
+        gameState.matchedPair++;
         gameState.score += 10;
-        animateScoreJuicy(scoreElement,gameState.score);
+        animateScoreJuicy(scoreElement, gameState.score);
     } else {
         setTimeout(() => {
             unflipCard(c1);
@@ -61,11 +68,10 @@ function checkMatch() {
         }, 1000);
     }
 
-    if(gameState.matchedPair === numberOfPair)
-    {
+    if (gameState.matchedPair === numberOfPair) {
         setTimeout(() => {
             gameState.score += 100;
-            animateScoreJuicy(scoreElement,gameState.score);
+            animateScoreJuicy(scoreElement, gameState.score);
             startNewRound();
         }, 1000);
     }
@@ -79,24 +85,24 @@ function unflipCard(cardElement) {
     cardElement.classList.remove('is-flipped');
 }
 
-deckValues.forEach((val, index) => {
-    const cardElement = createCard(val, index);
-    board.appendChild(cardElement);
-});
-
-function startNewRound() {
+function renderBoard(cards) {
     board.innerHTML = '';
-    gameState.pair = [];
-    gameState.isLocked = false;
-    gameState.matchedPair = 0;
-
-    const deck = deckValues.sort(() => Math.random() - 0.5);
-
-    deck.forEach((val, index) => {
+    cards.forEach((val, index) => {
         const cardElement = createCard(val, index);
         board.appendChild(cardElement);
     });
 }
+
+function startNewRound() {
+    gameState.pair = [];
+    gameState.isLocked = false;
+    gameState.matchedPair = 0;
+
+    const shuffledDeck = shuffle(deckValues);
+    renderBoard(shuffledDeck);
+}
+
+startNewRound();
 
 function easeOutQuad(x) {
     return 1 - (1 - x) * (1 - x);
@@ -108,7 +114,6 @@ function animateScoreJuicy(element, target, duration = 300) {
 
     const diff = Math.max(0, target - start);
     const baseGain = 10;
-
     const intensity = Math.min(Math.log10(Math.max(diff, 1) / baseGain + 1) + 0.7, 3);
 
     const maxScaleBonus = 0.25 * intensity;
