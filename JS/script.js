@@ -20,7 +20,6 @@ const gameState = {
     startTime: null,
 };
 
-// Mélange Fisher-Yates
 function shuffle(array) {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -30,7 +29,6 @@ function shuffle(array) {
     return arr;
 }
 
-// Gestion du chronomètre
 function startTimer() {
     gameState.startTime = Date.now();
     gameState.timerInterval = setInterval(() => {
@@ -45,11 +43,9 @@ function stopTimer() {
     clearInterval(gameState.timerInterval);
 }
 
-// Mise à jour visuelle du streak
 function updateStreakDisplay(hasGained) {
     streakElement.textContent = `x${Math.max(1, gameState.streak)}`;
 
-    // Animation de pop sur le texte du streak
     const scale = hasGained ? 1.35 : 0.85;
     streakElement.style.transform = `scale(${scale})`;
     setTimeout(() => {
@@ -57,7 +53,6 @@ function updateStreakDisplay(hasGained) {
     }, 200);
 }
 
-// Création des cartes (face cachée par défaut)
 function createCard(value, id) {
     const clone = template.content.cloneNode(true);
     const button = clone.querySelector('.card');
@@ -95,7 +90,6 @@ function checkMatch() {
     const [c1, c2] = gameState.pair;
 
     if (c1.dataset.value === c2.dataset.value) {
-        // Paire trouvée : on fige les cartes
         c1.style.pointerEvents = 'none';
         c2.style.pointerEvents = 'none';
 
@@ -103,7 +97,6 @@ function checkMatch() {
         gameState.streak++;
         updateStreakDisplay(true);
 
-        // Calcul dynamique : 10 points * multiplicateur
         const pointsWon = 10 * gameState.streak;
         gameState.score += pointsWon;
         animateScoreJuicy(scoreElement, gameState.score);
@@ -111,7 +104,6 @@ function checkMatch() {
         gameState.pair = [];
         gameState.isLocked = false;
 
-        // Victoire finale
         if (gameState.matchedPair === numberOfPair) {
             stopTimer();
             setTimeout(() => {
@@ -121,7 +113,6 @@ function checkMatch() {
             }, 600);
         }
     } else {
-        // Erreur : on casse la série de victoires d'affilée
         gameState.streak = 0;
         updateStreakDisplay(false);
 
@@ -147,7 +138,6 @@ btnReset.addEventListener('click', () => {
     window.location.reload();
 });
 
-// Animation juicy du score
 function easeOutQuad(x) {
     return 1 - (1 - x) * (1 - x);
 }
